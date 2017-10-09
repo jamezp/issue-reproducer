@@ -36,5 +36,6 @@
 
     <modules>
         <module>generic</module>
+        <module>logging-profile</module>
     </modules>
 </project>

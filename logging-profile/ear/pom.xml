@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, Home of Professional Open Source.
+  ~
+  ~ Copyright 2017 Red Hat, Inc., and individual contributors
+  ~ as indicated by the @author tags.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.jboss.reproducer</groupId>
+        <artifactId>logging-profile</artifactId>
+        <version>1.0.0.Final-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>ear</packaging>
+
+    <artifactId>ear</artifactId>
+
+    <properties>
+        <as.protocol>remote+http</as.protocol>
+        <as.port>9990</as.port>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.reproducer</groupId>
+            <artifactId>test-war-one</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.reproducer</groupId>
+            <artifactId>test-war-two</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.reproducer</groupId>
+            <artifactId>logging-lib</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <!-- Ear plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <modules>
+                        <webModule>
+                            <groupId>org.jboss.reproducer</groupId>
+                            <artifactId>test-war-one</artifactId>
+                        </webModule>
+                        <webModule>
+                            <groupId>org.jboss.reproducer</groupId>
+                            <artifactId>test-war-two</artifactId>
+                        </webModule>
+                        <jarModule>
+                            <groupId>org.jboss.reproducer</groupId>
+                            <artifactId>logging-lib</artifactId>
+                        </jarModule>
+                    </modules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.2.0.Final</version>
+                <configuration>
+                    <port>${as.port}</port>
+                    <protocol>${as.protocol}</protocol>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>configure-logging</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <configuration>
+                            <before-deployment>
+                                <commands>
+                                    <command>/subsystem=logging/logging-profile=profile-one:add</command>
+                                    <command>/subsystem=logging/logging-profile=profile-one/pattern-formatter=PATTERN:add(pattern="[profile-one]%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</command>
+                                    <command>/subsystem=logging/logging-profile=profile-one/file-handler=fh:add(autoflush=true,named-formatter=PATTERN,file={relative-to="jboss.server.log.dir",path="profile-one.log"},append=false)</command>
+                                    <command>/subsystem=logging/logging-profile=profile-one/root-logger=ROOT:add(level=INFO,handlers=[fh])</command>
+                                    <command>/subsystem=logging/logging-profile=profile-two:add</command>
+                                    <command>/subsystem=logging/logging-profile=profile-two/pattern-formatter=PATTERN:add(pattern="[profile-two] %d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</command>
+                                    <command>/subsystem=logging/logging-profile=profile-two/file-handler=fh:add(autoflush=true,named-formatter=PATTERN,file={relative-to="jboss.server.log.dir",path="profile-two.log"},append=false)</command>
+                                    <command>/subsystem=logging/logging-profile=profile-two/root-logger=ROOT:add(level=INFO,handlers=[fh])</command>
+                                </commands>
+                            </before-deployment>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
