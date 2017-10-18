@@ -32,8 +32,7 @@
     <artifactId>ear</artifactId>
 
     <properties>
-        <as.protocol>remote+http</as.protocol>
-        <as.port>9990</as.port>
+        <wildfly.skip>false</wildfly.skip>
     </properties>
 
     <dependencies>
@@ -80,11 +79,15 @@
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
-                <version>1.2.0.Final</version>
-                <configuration>
-                    <port>${as.port}</port>
-                    <protocol>${as.protocol}</protocol>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -100,16 +103,38 @@
                         <configuration>
                             <before-deployment>
                                 <commands>
+                                    <command>/subsystem=logging/logging-profile=profile-ear:add</command>
+                                    <command>/subsystem=logging/logging-profile=profile-ear/pattern-formatter=PATTERN:add(pattern="%K{level}[ear] %d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n", color-map="info:cyan")</command>
+                                    <command>/subsystem=logging/logging-profile=profile-ear/console-handler=c:add(autoflush=true,named-formatter=PATTERN)</command>
+                                    <command>/subsystem=logging/logging-profile=profile-ear/root-logger=ROOT:add(level=INFO,handlers=[c])</command>
                                     <command>/subsystem=logging/logging-profile=profile-one:add</command>
-                                    <command>/subsystem=logging/logging-profile=profile-one/pattern-formatter=PATTERN:add(pattern="[profile-one]%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</command>
+                                    <command>/subsystem=logging/logging-profile=profile-one/pattern-formatter=PATTERN:add(pattern="[profile-one]%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n")</command>
                                     <command>/subsystem=logging/logging-profile=profile-one/file-handler=fh:add(autoflush=true,named-formatter=PATTERN,file={relative-to="jboss.server.log.dir",path="profile-one.log"},append=false)</command>
                                     <command>/subsystem=logging/logging-profile=profile-one/root-logger=ROOT:add(level=INFO,handlers=[fh])</command>
                                     <command>/subsystem=logging/logging-profile=profile-two:add</command>
-                                    <command>/subsystem=logging/logging-profile=profile-two/pattern-formatter=PATTERN:add(pattern="[profile-two] %d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"</command>
+                                    <command>/subsystem=logging/logging-profile=profile-two/pattern-formatter=PATTERN:add(pattern="[profile-two] %d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n")</command>
                                     <command>/subsystem=logging/logging-profile=profile-two/file-handler=fh:add(autoflush=true,named-formatter=PATTERN,file={relative-to="jboss.server.log.dir",path="profile-two.log"},append=false)</command>
                                     <command>/subsystem=logging/logging-profile=profile-two/root-logger=ROOT:add(level=INFO,handlers=[fh])</command>
                                 </commands>
                             </before-deployment>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>add-ear-profile</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-ear-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Logging-Profile>profile-ear</Logging-Profile>
+                                </manifestEntries>
+                            </archive>
                         </configuration>
                     </plugin>
                 </plugins>

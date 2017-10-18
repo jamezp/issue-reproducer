@@ -57,6 +57,46 @@ public class LogResource {
     }
 
     @GET
+    @Path("log/jboss")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logJBoss() {
+        LoggingUtil.infoJBossLogging("org.jboss.reproducer.log.jboss.logging", "Test message from JBoss Logging");
+        return read();
+    }
+
+    @GET
+    @Path("log/jul")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logJul() {
+        LoggingUtil.infoJul("org.jboss.reproducer.log.jul", "Test message from JUL");
+        return read();
+    }
+
+    @GET
+    @Path("log/jcl")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logCommonsLogging() {
+        LoggingUtil.infoCommonsLogging("org.jboss.reproducer.log.commons.logging", "Test message from commons-logging");
+        return read();
+    }
+
+    @GET
+    @Path("log/log4j")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logLog4j() {
+        LoggingUtil.infoLog4j("org.jboss.reproducer.log.log4j", "Test message from log4j");
+        return read();
+    }
+
+    @GET
+    @Path("log/slf4j")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logSlf4j() {
+        LoggingUtil.infoSlf4j("org.jboss.reproducer.log.slf4j", "Test message from slf4j");
+        return read();
+    }
+
+    @GET
     @Path("read")
     @Produces(MediaType.APPLICATION_JSON)
     public Response read() {

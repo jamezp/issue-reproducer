@@ -45,6 +45,10 @@
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+
+        <wildfly.skip>true</wildfly.skip>
+        <as.protocol>remote+http</as.protocol>
+        <as.port>9990</as.port>
     </properties>
 
     <modules>
@@ -114,6 +118,18 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.2.0.Final</version>
+                <configuration>
+                    <skip>${wildfly.skip}</skip>
+                    <port>${as.port}</port>
+                    <protocol>${as.protocol}</protocol>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 
