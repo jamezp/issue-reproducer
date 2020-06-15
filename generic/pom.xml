@@ -24,9 +24,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.reproducer</groupId>
-        <artifactId>issue-reproducer</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>36</version>
     </parent>
 
     <artifactId>generic-issue-reproducer</artifactId>
