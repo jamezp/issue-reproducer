@@ -1,0 +1,20 @@
+if (outcome != success) of /subsystem=elytron/filesystem-realm=testRealm:read-resource
+
+    /subsystem=elytron/filesystem-realm=testRealm:add(path=test-realm-users,relative-to=jboss.server.config.dir)
+
+    /subsystem=elytron/filesystem-realm=testRealm:add-identity(identity=admin)
+    /subsystem=elytron/filesystem-realm=testRealm:set-password(identity=admin,clear={password="admin.12345"})
+    /subsystem=elytron/filesystem-realm=testRealm:add-identity-attribute(identity=admin,name=Roles, value=["Admin","User"])
+
+    /subsystem=elytron/filesystem-realm=testRealm:add-identity(identity=user)
+    /subsystem=elytron/filesystem-realm=testRealm:set-password(identity=user,clear={password="user.12345"})
+    /subsystem=elytron/filesystem-realm=testRealm:add-identity-attribute(identity=user,name=Roles, value=["User"])
+
+    /subsystem=elytron/simple-role-decoder=from-roles-attribute:add(attribute=Roles)
+
+    /subsystem=elytron/security-domain=test-domain:add(realms=[{realm=testRealm,role-decoder=from-roles-attribute}],default-realm=testRealm,permission-mapper=default-permission-mapper)
+
+    /subsystem=elytron/http-authentication-factory=test-http-auth:add(http-server-mechanism-factory=global,security-domain=test-domain,mechanism-configurations=[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=RealmUsersRoles}]}])
+
+    /subsystem=undertow/application-security-domain=test-domain:add(http-authentication-factory=test-http-auth)
+end-if

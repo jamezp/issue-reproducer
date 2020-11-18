@@ -2,10 +2,25 @@
 
 <html>
 <head lang="en">
-    <meta http-equiv="refresh" content="0; url=/web-app/default" />
+    <!-- <meta http-equiv="refresh" content="0; url=/web-app/default" /> -->
     <meta charset="UTF-8">
     <title>Reproducer</title>
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/app.js"></script>
+    <script>
+        document.onreadystatechange = () => {
+            if (document.readyState === 'complete') {
+                getEndpoints();
+            }
+        };
+    </script>
 </head>
 <body>
+<div id="container" class="container">
+    <h1 class="heading">Endpoints:</h1>
+    <ul id="links">
+
+    </ul>
+</div>
 </body>
 </html>

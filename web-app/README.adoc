@@ -1,0 +1,17 @@
+= Example Web App
+
+Example application that exposes the issues described in https://issues.redhat.com/browse/RESTEASY-2728[RESTEASY-2728].
+You can run the application with `mvn clean wildfly:run` or deploy it to a running WildFly server with
+`mvn clean wildfly:deploy`.
+
+Configures an Elytron security domain with two users and two roles. The roles are "Admin" and "User". The users are:
+
+* User: user
+ ** Password: user.12345
+
+* User: admin
+ ** Password: admin.12345
+
+
+Then navigate to http://localhost:8080/web-app which will display all the endpoints. You can click on the link to open
+in a new window or click the clipboard to copy the URL to your clipboard.

@@ -1,0 +1,9 @@
+= Standalone Client
+
+A simple client that will invoke authenticated REST calls and print information about the call to `stdout`.
+
+----
+java -jar target/generic-issue-reproducer.jar --user=user --password http://localhost:8080/web-app/rest/user
+
+java -jar target/generic-issue-reproducer.jar --user=user --password=user.12345 http://localhost:8080/web-app/rest/user
+----

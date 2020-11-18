@@ -19,12 +19,44 @@
 
 package org.wildfly.reproducer;
 
+import java.util.concurrent.Callable;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class Main {
+@CommandLine.Command()
+public class Main implements Callable<Integer> {
 
-    public static void main(final String[] args) throws Throwable {
 
+    @Option(required = true, names = {"-u", "--user"}, description = "The user to authenticate with.", interactive = true)
+    private String user;
+
+    @Option(required = true, names = {"-p", "--password"}, description = "The password to authenticate with.", interactive = true)
+    private char[] password;
+
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    private boolean usageHelpRequested;
+
+    @Parameters(paramLabel = "URL", description = "The URL or URL's to execute the rest client on.", index = "0..*")
+    private String[] urls;
+
+    public static void main(final String[] args) {
+        int exitCode = new CommandLine(new Main()).execute(args);
+
+        System.exit(exitCode);
+    }
+
+    @Override
+    public Integer call() {
+        try (StdoutClient client = new StdoutClient(user, password)) {
+            for (String url : urls) {
+                client.accept(url);
+            }
+        }
+        return 0;
     }
 }
