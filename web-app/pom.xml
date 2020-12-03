@@ -29,7 +29,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.wildfly.reproducer</groupId>
     <artifactId>web-app</artifactId>
+    <version>1.0.0.Final-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>

@@ -29,7 +29,9 @@
         <version>37</version>
     </parent>
 
+    <groupId>org.wildfly.reproducer</groupId>
     <artifactId>generic-issue-reproducer</artifactId>
+    <version>1.0.0.Final-SNAPSHOT</version>
 
     <properties>
     </properties>
