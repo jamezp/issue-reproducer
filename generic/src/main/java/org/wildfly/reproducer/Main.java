@@ -19,12 +19,31 @@
 
 package org.wildfly.reproducer;
 
+import java.util.concurrent.Callable;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class Main {
+@Command(name = "reproducer", description = "A generic command line reproducer.",
+        showDefaultValues = true)
+public class Main implements Callable<Integer> {
+
+    @SuppressWarnings("unused")
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    private boolean usageHelpRequested;
 
     public static void main(final String[] args) throws Throwable {
+        final CommandLine commandLine = new CommandLine(new Main());
+        final int exitStatus = commandLine.execute(args);
+        System.exit(exitStatus);
+    }
 
+    @Override
+    public Integer call() throws Exception {
+        return 0;
     }
 }
