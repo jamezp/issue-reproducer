@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>38</version>
+        <version>39</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,7 +35,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <version.jakarta.ee>8.0.0</version.jakarta.ee>
+        <version.jakarta.ee>10.0.0-RC1</version.jakarta.ee>
 
         <version.org.jboss.logging.jboss-logging>3.4.2.Final</version.org.jboss.logging.jboss-logging>
 
@@ -131,5 +131,22 @@
             </build>
         </profile>
     </profiles>
+
+    <repositories>
+        <!-- Temporary repository for staged Jakarta EE 10 dependencies -->
+        <repository>
+            <id>jakarta-staging</id>
+            <name>Jakarta Staging</name>
+            <url>https://jakarta.oss.sonatype.org/content/repositories/staging/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
