@@ -19,31 +19,24 @@
 
 package org.wildfly.reproducer;
 
-import java.util.concurrent.Callable;
-
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.Response;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-@Command(name = "reproducer", description = "A generic command line reproducer.",
-        showDefaultValues = true)
-public class Main implements Callable<Integer> {
-
-    @SuppressWarnings("unused")
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
-    private boolean usageHelpRequested;
+public class Main {
 
     public static void main(final String[] args) throws Throwable {
-        final CommandLine commandLine = new CommandLine(new Main());
-        final int exitStatus = commandLine.execute(args);
-        System.exit(exitStatus);
-    }
+        System.setProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager");
 
-    @Override
-    public Integer call() throws Exception {
-        return 0;
+        try (Client client = ClientBuilder.newClient()) {
+            final Response response = client.target("https://localhost/web-app/rest/Customers?customer=1")
+                    .request()
+                    .get();
+            System.out.println(response.getStatusInfo());
+            System.out.println(response.readEntity(CustomerView.class));
+        }
     }
 }
