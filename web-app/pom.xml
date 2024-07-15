@@ -72,6 +72,8 @@
                     <layers>
                         <layer>ee-core-profile-server</layer>
                         <layer>elytron</layer>
+                        <layer>management</layer>
+                        <layer>core-tools</layer>
                     </layers>
                     <galleon-options>
                         <jboss-fork-embedded>true</jboss-fork-embedded>
@@ -79,7 +81,7 @@
                     <commands>
                         <command>/subsystem=logging/console-handler=CONSOLE:undefine-attribute(name=level)</command>
                         <command>/subsystem=logging/logger=org.wildfly.security:add(level=TRACE)</command>
-                        <command>/subsystem=elytron/key-store=tckKs:add(path=server.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)</command>
+                        <command>/subsystem=elytron/key-store=tckKs:add(path=client.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)</command>
                         <command>/subsystem=elytron/key-store=tckKs:import-certificate(alias=tomcat,path=&quot;/tmp/test-ssl-config/shared.cert&quot;,credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)</command>
                         <command>/subsystem=elytron/key-store=tckKs:store()</command>
                         <command>/subsystem=elytron/key-manager=tckKm:add(key-store=tckKs,credential-reference={clear-text=change.it.12345})</command>
@@ -92,5 +94,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -1,5 +1,62 @@
 = Reproduce the Jakarta Security TCK Issue
 
+== Manual Configuration
+
+Create the keystore and export a certificate for the server.
+
+[source,bash]
+----
+mkdir -p /tmp/test-ssl-config
+keytool -v -genkeypair -alias wildfly-test -keyalg RSA -keysize 2048 -dname "CN=localhost, OU=jakarta, O=eclipse, L=amsterdam, S=holland, C=nl" -storepass change.it.12345 -keystore /tmp/test-ssl-config/localhost.jks
+keytool -v -export -alias wildfly-test -storepass change.it.12345 -keystore /tmp/test-ssl-config/localhost.jks -file /tmp/test-ssl-config/shared.cert
+----
+
+Configure WildFly, the client
+
+. Build the project
++
+[source,bash]
+----
+mvn clean install
+----
+
+. Provision a server or download a server
+    ** Provision with Maven
++
+[source,bash]
+----
+mvn clean wildfly:provision -Djboss.home=/path/to/wildfly
+----
+. Execute the following CLI
++
+[source]
+----
+/subsystem=logging/console-handler=CONSOLE:undefine-attribute(name=level)
+/subsystem=logging/logger=org.wildfly.security:add(level=TRACE)
+/subsystem=elytron/key-store=tckKs:add(path=client.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)
+/subsystem=elytron/key-store=tckKs:import-certificate(alias=wildfly-test,path="/tmp/test-ssl-config/shared.cert",credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)
+/subsystem=elytron/key-store=tckKs:store()
+/subsystem=elytron/key-manager=tckKm:add(key-store=tckKs,credential-reference={clear-text=change.it.12345})
+/subsystem=elytron/trust-manager=tckTm:add(key-store=tckKs)
+/subsystem=elytron/client-ssl-context=tckSsl:add(key-manager=tckKm,trust-manager=tckTm)
+/subsystem=elytron:write-attribute(name=default-ssl-context, value=tckSsl)
+----
++
+NOTE: If doing this in a server not running in admin-only mode, a `reload` will be required.
+. Build and deploy the web-app
++
+[source,bash]
+----
+mvn clean package wildfly:deploy-only
+----
+. Navigate to http://localhost:8080/web-app/client or use
++
+[source,bash]
+----
+curl -v http://localhost:8080/web-app/client
+----
+
+== Automated Configuration
 IMPORTANT: This uses the hard-coded path `/tmp/test-ssl-config` to store the certificates.
 
 Build the project with:
@@ -22,13 +79,9 @@ mvn clean wildfly:dev
 ----
 
 Navigate to http://localhost:8080/web-app/client or use
+
 [source,bash]
 ----
 curl -v http://localhost:8080/web-app/client
 ----
 
-== Notes
-
-In the `SslUtil` there some extra methods and configuration that I've used for testing SSL in the `SeBootstrap` and
-the Jakarta REST Client. I've left those for now, because it makes sense for a full two-way authentication. However,
-only the `CERT` and `SHARED_KEYSTORE` are used in the application.

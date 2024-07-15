@@ -18,9 +18,12 @@ public class Main {
     }
 
     public static void main(final String[] args) throws Exception {
-        SslUtil.clean();
+        final boolean manual = (args != null && args[0].equals("manual"));
+        if (!manual) {
+            SslUtil.clean();
+        }
         final var configuration = SeBootstrap.Configuration.builder()
-                .sslContext(SslUtil.createServerSslContext())
+                .sslContext(SslUtil.createServerSslContext(manual))
                 .protocol("https")
                 .port(8443)
                 .build();
