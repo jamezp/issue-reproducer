@@ -1,5 +1,7 @@
 = Reproduce the Jakarta Security TCK Issue
 
+IMPORTANT: This uses the hard-coded path `/tmp/test-ssl-config` to store the certificates.
+
 Build the project with:
 [source,bash]
 ----

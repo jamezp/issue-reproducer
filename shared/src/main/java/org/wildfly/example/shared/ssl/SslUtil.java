@@ -5,7 +5,6 @@
 
 package org.wildfly.example.shared.ssl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,7 +43,7 @@ import org.wildfly.security.x500.cert.SelfSignedX509CertificateAndSigningKey;
  */
 public class SslUtil {
 
-    private static final String WORK_DIR = System.getProperty("java.io.tmpdir") + File.separator + "/test-ssl-config";
+    private static final String WORK_DIR = "/tmp/test-ssl-config";
 
     private static final Path SHARED_KEYSTORE = Path.of(WORK_DIR, "localhost.jks");
     private static final Path CERT = Path.of(WORK_DIR, "shared.cert");

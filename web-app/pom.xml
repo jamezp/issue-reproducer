@@ -77,13 +77,16 @@
                         <jboss-fork-embedded>true</jboss-fork-embedded>
                     </galleon-options>
                     <commands>
+                        <command>/subsystem=logging/console-handler=CONSOLE:undefine-attribute(name=level)</command>
+                        <command>/subsystem=logging/logger=org.wildfly.security:add(level=TRACE)</command>
                         <command>/subsystem=elytron/key-store=tckKs:add(path=server.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)</command>
-                        <command>/subsystem=elytron/key-store=tckKs:import-certificate(alias=tomcat,path=&quot;${java.io.tmpdir}//test-ssl-config/shared.cert&quot;,credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)</command>
+                        <command>/subsystem=elytron/key-store=tckKs:import-certificate(alias=tomcat,path=&quot;/tmp/test-ssl-config/shared.cert&quot;,credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)</command>
                         <command>/subsystem=elytron/key-store=tckKs:store()</command>
                         <command>/subsystem=elytron/key-manager=tckKm:add(key-store=tckKs,credential-reference={clear-text=change.it.12345})</command>
                         <command>/subsystem=elytron/trust-manager=tckTm:add(key-store=tckKs)</command>
                         <command>/subsystem=elytron/client-ssl-context=tckSsl:add(key-manager=tckKm,trust-manager=tckTm)</command>
                         <command>/subsystem=elytron:write-attribute(name=default-ssl-context, value=tckSsl)</command>
+                        <command>reload</command>
                     </commands>
                 </configuration>
             </plugin>

@@ -1,6 +1,7 @@
 #Ignore Maven target folder
 target/
 **/dependency-reduced-pom.xml
+.cache
 
 #Ignore Eclipse files
 .settings/
