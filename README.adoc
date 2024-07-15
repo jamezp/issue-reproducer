@@ -31,13 +31,27 @@ mvn clean wildfly:provision -Djboss.home=/path/to/wildfly
 +
 [source]
 ----
+# Turn on debug logging
 /subsystem=logging/console-handler=CONSOLE:undefine-attribute(name=level)
 /subsystem=logging/logger=org.wildfly.security:add(level=TRACE)
-/subsystem=elytron/key-store=tckKs:add(path=client.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)
-/subsystem=elytron/key-store=tckKs:import-certificate(alias=wildfly-test,path="/tmp/test-ssl-config/shared.cert",credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)
-/subsystem=elytron/key-store=tckKs:store()
-/subsystem=elytron/key-manager=tckKm:add(key-store=tckKs,credential-reference={clear-text=change.it.12345})
+
+# create a keystore for the client
+/subsystem=elytron/key-store=tckKs:add(path=client.keystore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)
+/subsystem=elytron/key-store=tckKs:generate-key-pair(alias=wildfly-test,distinguished-name="CN=localhost, OU=jakarta, O=eclipse, L=amsterdam, S=holland, C=nl", credential-reference={clear-text=change.it.12345})
+/subsystem=elytron/key-store=tckKs:store
+
+# create the truststore for the client that has the cert from the server's keystore
+/subsystem=elytron/key-store=tckTs:add(path=client.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)
+/subsystem=elytron/key-store=tckTs:import-certificate(alias=wildfly-test,path="/tmp/test-ssl-config/shared.cert",credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)
+/subsystem=elytron/key-store=tckTs:store()
+
+# add the keystore to the key manager
+/subsystem=elytron/key-manager=tckKm:add(key-store=tckTs,credential-reference={clear-text=change.it.12345})
+
+# add the truststore to the trust manager
 /subsystem=elytron/trust-manager=tckTm:add(key-store=tckKs)
+
+# create the SSL context with the trust and the key manager
 /subsystem=elytron/client-ssl-context=tckSsl:add(key-manager=tckKm,trust-manager=tckTm)
 /subsystem=elytron:write-attribute(name=default-ssl-context, value=tckSsl)
 ----
