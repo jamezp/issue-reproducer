@@ -1,0 +1,32 @@
+= Reproduce the Jakarta Security TCK Issue
+
+Build the project with:
+[source,bash]
+----
+mvn clean install
+----
+
+Run the REST server
+[source,bash]
+----
+java -jar rest-server/target/rest-server.jar
+----
+
+Run WildFly in dev mode:
+[source,bash]
+----
+cd web-app
+mvn clean wildfly:dev
+----
+
+Navigate to http://localhost:8080/web-app/client or use
+[source,bash]
+----
+curl -v http://localhost:8080/web-app/client
+----
+
+== Notes
+
+In the `SslUtil` there some extra methods and configuration that I've used for testing SSL in the `SeBootstrap` and
+the Jakarta REST Client. I've left those for now, because it makes sense for a full two-way authentication. However,
+only the `CERT` and `SHARED_KEYSTORE` are used in the application.

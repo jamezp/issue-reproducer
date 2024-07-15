@@ -1,75 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ JBoss, Home of Professional Open Source.
-  ~
-  ~ Copyright 2019 Red Hat, Inc., and individual contributors
-  ~ as indicated by the @author tags.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ Copyright The WildFly Authors
+  ~ SPDX-License-Identifier: Apache-2.0
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <parent>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-parent</artifactId>
-        <version>39</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.wildfly.example</groupId>
+        <artifactId>two-way-ssl</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>org.wildfly.reproducer</groupId>
     <artifactId>web-app</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
     <packaging>war</packaging>
 
+    <name>WildFly Example: Web Application</name>
+    <description/>
+
     <properties>
-        <version.jakarta.ee>10.0.0-RC1</version.jakarta.ee>
-
-        <version.org.jboss.logging.jboss-logging>3.4.2.Final</version.org.jboss.logging.jboss-logging>
-
-        <version.wildfly.manage.plugin>2.1.0.Final</version.wildfly.manage.plugin>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.source>11</maven.compiler.source>
+        <jboss.home>${project.build.directory}${file.separator}wildfly</jboss.home>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>jakarta.platform</groupId>
-                <artifactId>jakarta.jakartaee-bom</artifactId>
-                <version>${version.jakarta.ee}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
-            <groupId>jakarta.enterprise</groupId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <artifactId>jakarta.json-api</artifactId>
             <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -78,75 +36,58 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-            <version>${version.org.jboss.logging.jboss-logging}</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly.example</groupId>
+            <artifactId>shared</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>${version.wildfly.manage.plugin}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
+                <configuration>
+                    <jboss-home>${jboss.home}</jboss-home>
+                    <provisioning-dir>${jboss.home}</provisioning-dir>
+                    <feature-packs>
+                        <feature-pack>
+                            <groupId>org.wildfly</groupId>
+                            <artifactId>wildfly-ee-galleon-pack</artifactId>
+                        </feature-pack>
+                    </feature-packs>
+                    <channels>
+                        <channel>
+                            <manifest>
+                                <groupId>org.wildfly.channels</groupId>
+                                <artifactId>wildfly-ee</artifactId>
+                            </manifest>
+                        </channel>
+                    </channels>
+                    <layers>
+                        <layer>ee-core-profile-server</layer>
+                        <layer>elytron</layer>
+                    </layers>
+                    <galleon-options>
+                        <jboss-fork-embedded>true</jboss-fork-embedded>
+                    </galleon-options>
+                    <commands>
+                        <command>/subsystem=elytron/key-store=tckKs:add(path=server.truststore.pkcs12,relative-to=jboss.server.config.dir,credential-reference={clear-text=change.it.12345},type=PKCS12)</command>
+                        <command>/subsystem=elytron/key-store=tckKs:import-certificate(alias=tomcat,path=&quot;${java.io.tmpdir}//test-ssl-config/shared.cert&quot;,credential-reference={clear-text=change.it.12345},trust-cacerts=true,validate=false)</command>
+                        <command>/subsystem=elytron/key-store=tckKs:store()</command>
+                        <command>/subsystem=elytron/key-manager=tckKm:add(key-store=tckKs,credential-reference={clear-text=change.it.12345})</command>
+                        <command>/subsystem=elytron/trust-manager=tckTm:add(key-store=tckKs)</command>
+                        <command>/subsystem=elytron/client-ssl-context=tckSsl:add(key-manager=tckKm,trust-manager=tckTm)</command>
+                        <command>/subsystem=elytron:write-attribute(name=default-ssl-context, value=tckSsl)</command>
+                    </commands>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>debug</id>
-            <activation>
-                <property>
-                    <name>debug</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.wildfly.plugins</groupId>
-                        <artifactId>wildfly-maven-plugin</artifactId>
-                        <configuration>
-                            <java-opts>
-                                <java-opt>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</java-opt>
-                            </java-opts>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <repositories>
-        <!-- Temporary repository for staged Jakarta EE 10 dependencies -->
-        <repository>
-            <id>jakarta-staging</id>
-            <name>Jakarta Staging</name>
-            <url>https://jakarta.oss.sonatype.org/content/repositories/staging/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>
